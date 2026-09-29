@@ -30,21 +30,25 @@ Install-Package AntdUI
 dotnet add package AntdUI
 ```
 
-### Program.cs 基础配置
+### Program.cs 基础配置（DPI 适配与高清渲染）
 
 ```csharp
 [STAThread]
 static void Main()
 {
-    // ① DPI 适配（.NET 6+ 推荐）
+    // ① DPI 适配（.NET 6+ 推荐 PerMonitorV2）
     Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
     Application.EnableVisualStyles();
     Application.SetCompatibleTextRenderingDefault(false);
 
-    // ② 颜色模式（可选，默认 Light）
+    // ② 开启高质量抗锯齿文字与字体垂直居中修正
+    AntdUI.Config.TextRenderingHighQuality = true;
+    AntdUI.Config.SetCorrectionTextRendering("Microsoft YaHei UI", "中");
+
+    // ③ 颜色模式（可选，默认 Light）
     AntdUI.Config.Mode = AntdUI.TMode.Light;
 
-    // ③ 全局主题色（可选）
+    // ④ 全局主题色（可选）
     AntdUI.Config.Theme()
         .Light("#ffffff", "#000000")
         .Dark("#141414", "#ffffff")
@@ -53,6 +57,29 @@ static void Main()
     Application.Run(new MainForm());
 }
 ```
+
+---
+
+## ⚡ 核心设计铁律：必须做到自适应！
+
+> **无论用户提出何种界面开发需求，生成的代码必须做到自适应（DPI 自适应 + 窗口/分辨率自适应）**。
+> 详见 [自适应与响应式布局完全指南](./references/adaptation.md)。
+
+1. **必须继承 AntdUI 窗口基类**：
+   - 所有的主窗口与子窗口**必须继承 `AntdUI.BaseForm`**（或 `Window`、`BorderlessForm`），绝不能直接继承原生 `System.Windows.Forms.Form`。BaseForm 内部已自动开启 `AutoHandDpi = true`，并在不同屏幕 DPI 下自动进行物理缩放。
+2. **严禁硬编码绝对坐标（严禁随意写死固定像素定位）**：
+   - **禁止** `Location = new Point(120, 240)` 这类定死像素的做法。
+   - **必须**使用 `Dock`（`DockStyle.Fill / Top / Left / Bottom`）或 `Anchor` 实现控件随窗口拉伸自动伸展。
+3. **弹性与栅格布局容器选型**：
+   - **表单/卡片排版**：优先使用 `AntdUI.GridPanel`（设置 `Column` 等分列数，各列自适应填充）。
+   - **流式标签/按钮排版**：使用 `AntdUI.FlowPanel`（`Wrap = true`，随宽度自动折行）。
+   - **工具栏/线性组件**：使用 `AntdUI.StackPanel`（水平/垂直自动排列并保持 `Gap` 间距）。
+4. **工作区内容防溢出滚动（AutoScroll）**：
+   - 中间主体面板（`DockStyle.Fill`）必须设置 `AutoScroll = true`，当用户在低分辨率屏幕或分屏小窗口下使用时，能够平滑滚动，杜绝界面元素被截断。
+5. **表格必须全宽自适应（Table ColumnsMode.Fill）**：
+   - 表格必须设置 `AutoSizeColumnsMode = AntdUI.ColumnsMode.Fill`，让数据列填满整表；仅将 ID、状态、操作列设置 `Fixed = true` 固定宽度。
+6. **响应式断点监听**：
+   - 针对包含侧边菜单的后台布局，监听 `SizeChanged` 事件：窗口宽度 `< 768px` 时自动 `menu.Collapsed = true`，`GridPanel.Column` 由多列自动变为单列。
 
 ---
 
@@ -556,6 +583,7 @@ this.Invoke(() =>
 
 ## 📚 参考资料
 
+- [自适应与响应式布局完全指南](./references/adaptation.md) — DPI 缩放适配、Dock/Anchor 弹性布局、响应式断点等核心铁律
 - [控件完整属性参考](./references/controls.md) — 所有控件属性表格 + 代码示例
 - [常用场景代码模板](./references/patterns.md) — 登录窗口、主布局、CRUD表格、表单验证等完整模板
 - [官方英文文档](https://github.com/AntdUI/AntdUI/blob/main/doc/wiki/en/Home.md)

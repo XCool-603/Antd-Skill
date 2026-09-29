@@ -270,12 +270,14 @@ public class UsersPage : UserControl
 
         toolbar.Controls.AddRange(new Control[] { searchInput, btnRefresh, btnAdd });
 
-        // 表格
+        // 表格（自适应填满宽屏，自动省略提示）
         table = new AntdUI.Table
         {
             Dock = DockStyle.Fill,
             Bordered = true,
             FixedHeader = true,
+            AutoSizeColumnsMode = AntdUI.ColumnsMode.Fill,
+            ShowTip = true,
         };
         table.Columns = new AntdUI.ColumnCollection
         {
@@ -743,3 +745,153 @@ Task.Run(async () =>
     });
 });
 ```
+
+---
+
+## 11. 高分屏（DPI）与响应式自适应后台骨架
+
+```csharp
+// 具备完整高 DPI 自适应、自动折叠侧边栏、栅格列数自适应、防溢出滚动的实战页面
+public partial class AdaptiveDashboardForm : AntdUI.BaseForm
+{
+    private AntdUI.WindowBar windowBar;
+    private AntdUI.Menu sideMenu;
+    private Panel workPanel;
+    private AntdUI.GridPanel statGrid;
+    private AntdUI.Table mainTable;
+
+    public AdaptiveDashboardForm()
+    {
+        // 1. 声明高 DPI 自动物理缩放（BaseForm 原生支持）
+        this.AutoHandDpi = true;
+        this.Size = new Size(1180, 760);
+        this.MinimumSize = new Size(680, 480);
+        this.Text = "企业级自适应运营中台";
+
+        BuildAdaptiveLayout();
+
+        // 2. 监听窗口大小变化（响应式断点）
+        this.SizeChanged += (s, e) => ApplyBreakpoints();
+    }
+
+    private void BuildAdaptiveLayout()
+    {
+        // 顶部标题栏自适应横向充满
+        windowBar = new AntdUI.WindowBar
+        {
+            Dock = DockStyle.Top,
+            Height = 44,
+            ShowIcon = true,
+            Text = this.Text,
+        };
+
+        // 左侧菜单（支持收缩折叠）
+        sideMenu = new AntdUI.Menu
+        {
+            Dock = DockStyle.Left,
+            Width = 210,
+            Collapsed = false,
+            Unique = true,
+        };
+        sideMenu.Items.Add(new AntdUI.MenuItem("监控大屏") { ImageSvg = AntdUI.SvgDb.DashboardOutlined });
+        sideMenu.Items.Add(new AntdUI.MenuItem("用户管理") { ImageSvg = AntdUI.SvgDb.UserOutlined });
+        sideMenu.Items.Add(new AntdUI.MenuItem("系统配置") { ImageSvg = AntdUI.SvgDb.SettingOutlined });
+
+        // 主体工作区（必须 Fill，必须开启 AutoScroll 避免小屏下内容被裁切）
+        workPanel = new Panel
+        {
+            Dock = DockStyle.Fill,
+            AutoScroll = true,
+            Padding = new Padding(16),
+        };
+
+        // 统计栅格面板（自适应列数）
+        statGrid = new AntdUI.GridPanel
+        {
+            Dock = DockStyle.Top,
+            Height = 110,
+            Column = 3,
+            Gap = 16,
+            Margin = new Padding(0, 0, 0, 16),
+        };
+        statGrid.Controls.Add(MakeStatCard("日活跃用户", "42,390", AntdUI.TType.Primary));
+        statGrid.Controls.Add(MakeStatCard("今日营业额", "￥128,500", AntdUI.TType.Success));
+        statGrid.Controls.Add(MakeStatCard("告警事项", "2", AntdUI.TType.Warn));
+
+        // 表格自适应全宽填充
+        mainTable = new AntdUI.Table
+        {
+            Dock = DockStyle.Fill,
+            Bordered = true,
+            FixedHeader = true,
+            AutoSizeColumnsMode = AntdUI.ColumnsMode.Fill,
+            ShowTip = true,
+        };
+        mainTable.Columns = new AntdUI.ColumnCollection
+        {
+            new AntdUI.Column("Code", "工单编号") { Width = 100, Fixed = true },
+            new AntdUI.Column("Title", "问题详情") { Align = AntdUI.TAlign.Left },
+            new AntdUI.Column("Reporter", "提交人") { Width = 110 },
+            new AntdUI.Column("CreatedAt", "时间") { Width = 160 },
+            new AntdUI.Column("Status", "状态") { Width = 90, Fixed = true },
+        };
+
+        workPanel.Controls.Add(mainTable);
+        workPanel.Controls.Add(statGrid);
+
+        this.Controls.Add(workPanel);
+        this.Controls.Add(sideMenu);
+        this.Controls.Add(windowBar);
+    }
+
+    private Control MakeStatCard(string label, string count, AntdUI.TType type)
+    {
+        var card = new AntdUI.Panel
+        {
+            Radius = 8,
+            Shadow = 2,
+            Padding = new Padding(12),
+        };
+        card.Controls.Add(new AntdUI.Label
+        {
+            Text = count,
+            Dock = DockStyle.Fill,
+            Font = new Font("Segoe UI", 16F, FontStyle.Bold),
+            Type = type,
+            TextAlign = ContentAlignment.MiddleLeft,
+        });
+        card.Controls.Add(new AntdUI.Label
+        {
+            Text = label,
+            Dock = DockStyle.Top,
+            Height = 22,
+            ForeColor = Color.Gray,
+        });
+        return card;
+    }
+
+    private void ApplyBreakpoints()
+    {
+        int w = this.ClientSize.Width;
+        if (w < 768)
+        {
+            sideMenu.Collapsed = true;
+            statGrid.Column = 1;
+            statGrid.Height = 310;
+        }
+        else if (w < 1024)
+        {
+            sideMenu.Collapsed = false;
+            statGrid.Column = 2;
+            statGrid.Height = 210;
+        }
+        else
+        {
+            sideMenu.Collapsed = false;
+            statGrid.Column = 3;
+            statGrid.Height = 110;
+        }
+    }
+}
+```
+

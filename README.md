@@ -24,10 +24,12 @@
 
 安装或激活此 Skill 后，AI 会自动化身为 **AntdUI 专家**，为你生成：
 1. **纯正 Ant Design 风格**的现代化 WinForms 界面代码（`BaseForm`、圆角、阴影、波纹动效）。
-2. **完整参数化的 AntdUI 控件**（`Button`、`Input`、`Table`、`Menu`、`Tabs`、`Modal`、`Spin` 等）。
-3. **内置 SVG 图标与暗黑模式切换**代码（无需引入外部图标资源）。
-4. **企业级实战模板**（CRUD 页面、带验证表单、异步防抖搜索、文件上传进度条等）。
-5. **AOT 编译兼容写法**（避免因反射引发的 AOT 裁剪异常）。
+2. **全方位自适应布局（强制铁律）**：拒绝死板固定坐标，结合 `Dock`、`Anchor`、`GridPanel`、`FlowPanel` 与 `AutoScroll`，保证窗口放大缩小、任意分辨率、低分屏与分屏操作时都不错位、不截断。
+3. **高分屏（DPI）硬件级自适应**：内置 `PerMonitorV2`、高质量抗锯齿文字与字体垂直居中修正，4K / 2K / 125%~200% 缩放清晰无毛边。
+4. **完整参数化的 AntdUI 控件**（`Button`、`Input`、`Table`、`Menu`、`Tabs`、`Modal`、`Spin` 等）。
+5. **内置 SVG 图标与暗黑模式切换**代码（无需引入外部图片资源）。
+6. **企业级实战模板**（自适应 CRUD 页面、带验证表单、响应式断点、文件上传进度条等）。
+7. **AOT 编译兼容写法**（避免因反射引发的 AOT 裁剪异常）。
 
 ---
 
@@ -78,7 +80,10 @@
 ### 示例 3：切换深色模式（Dark Mode）
 > *"如何在 AntdUI 中实现一键切换浅色/深色主题？请给我全局配置及 Switch 控件联动的示例代码。"*
 
-### 示例 4：AOT 编译安全的数据绑定
+### 示例 4：自适应响应式后台布局（防止窗体缩放变形）
+> *"帮我设计一个 AntdUI 运营数据中台，必须做到自适应：要求在 1080P/2K/4K 高分屏下不模糊，窗体支持自由拖动拉伸，窗口小于 768px 时侧边菜单自动折叠、卡片自动变成单列，中间表格使用 ColumnsMode.Fill 铺满屏幕，主体区域开启 AutoScroll 防止低分辨率截断。"*
+
+### 示例 5：AOT 编译安全的数据绑定
 > *"我想把基于 AntdUI 的 WinForms 项目发布为 AOT 单文件程序，Table 控件该怎么绑定数据才不会被剪裁？"*
 
 ---
@@ -91,17 +96,20 @@ Antd-Skill/
 └── .agents/
     └── skills/
         └── antdui/
-            ├── SKILL.md                       # ⚡ 技能主入口（快速参考、核心概念、速查表）
+            ├── SKILL.md                       # ⚡ 技能主入口（快速参考、自适应铁律、速查表）
             └── references/
+                ├── adaptation.md              # 📐 自适应与响应式布局完全指南（DPI+窗口缩放）
                 ├── controls.md                # 📖 全控件属性清单（参数说明、类型、默认值与用例）
-                └── patterns.md                # 🛠️ 10大实用场景完整可运行模板
+                └── patterns.md                # 🛠️ 11大实用场景完整可运行模板
 ```
 
 ---
 
 ## 📚 文档导航
 
+- [查看自适应与响应式完全指南 (references/adaptation.md)](.agents/skills/antdui/references/adaptation.md)
 - [查看技能主定义与速查 (SKILL.md)](.agents/skills/antdui/SKILL.md)
 - [查看所有控件详细属性 (references/controls.md)](.agents/skills/antdui/references/controls.md)
 - [查看企业级场景代码模板 (references/patterns.md)](.agents/skills/antdui/references/patterns.md)
 - [AntdUI 官方源码仓库 (GitHub)](https://github.com/AntdUI/AntdUI)
+
